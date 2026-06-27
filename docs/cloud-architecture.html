@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purdue Capstone — Cloud Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #020617;
+      min-height: 100vh;
+      padding: 2rem;
+      color: white;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot {
+      width: 12px; height: 12px; background: #22d3ee; border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+    .diagram-container {
+      background: rgba(15,23,42,0.5); border-radius: 1rem; border: 1px solid #1e293b;
+      padding: 1.5rem; overflow-x: auto;
+    }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem; margin-top: 2rem;
+    }
+    .card {
+      background: rgba(15,23,42,0.5); border-radius: 0.75rem;
+      border: 1px solid #1e293b; padding: 1.25rem;
+    }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    .card-dot.amber { background: #fbbf24; }
+    .card-dot.rose { background: #fb7185; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+    .footer { text-align: center; margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Purdue Capstone — Azure Cloud Architecture</h1>
+      </div>
+      <p class="subtitle">IT473 E-Commerce Platform for Food Distribution</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1100 780">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- === EXTERNAL: Users === -->
+        <rect x="20" y="340" width="110" height="50" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="75" y="360" fill="white" font-size="11" font-weight="600" text-anchor="middle">Users</text>
+        <text x="75" y="376" fill="#94a3b8" font-size="9" text-anchor="middle">Browser / Mobile</text>
+
+        <!-- === AZURE REGION BOUNDARY === -->
+        <rect x="160" y="20" width="920" height="740" rx="12" fill="rgba(251,191,36,0.03)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="172" y="40" fill="#fbbf24" font-size="11" font-weight="600">Microsoft Azure — East US</text>
+
+        <!-- === AZURE APP SERVICE (Compute) === -->
+        <rect x="190" y="80" width="300" height="280" rx="8" fill="transparent" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="200" y="100" fill="#fb7185" font-size="9" font-weight="600">Azure App Service (Web App for Containers)</text>
+
+        <!-- App Service Plan -->
+        <rect x="210" y="115" width="260" height="60" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="340" y="138" fill="white" font-size="11" font-weight="600" text-anchor="middle">App Service Plan</text>
+        <text x="340" y="155" fill="#94a3b8" font-size="9" text-anchor="middle">B1 (Linux) — auto-scaling ready</text>
+
+        <!-- Django Container -->
+        <rect x="210" y="195" width="260" height="70" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="340" y="220" fill="white" font-size="11" font-weight="600" text-anchor="middle">Django + Gunicorn Container</text>
+        <text x="340" y="238" fill="#94a3b8" font-size="9" text-anchor="middle">Python 3.12 | Django 5.1 | Docker</text>
+        <text x="340" y="253" fill="#34d399" font-size="8" text-anchor="middle">HTTPS :443</text>
+
+        <!-- Health Check -->
+        <rect x="210" y="285" width="120" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="270" y="305" fill="white" font-size="10" font-weight="600" text-anchor="middle">/health/</text>
+        <text x="270" y="320" fill="#94a3b8" font-size="8" text-anchor="middle">Load balancer check</text>
+
+        <!-- Admin Panel -->
+        <rect x="350" y="285" width="120" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="410" y="305" fill="white" font-size="10" font-weight="600" text-anchor="middle">/admin/</text>
+        <text x="410" y="320" fill="#94a3b8" font-size="8" text-anchor="middle">Django Admin</text>
+
+        <!-- === AZURE SQL DATABASE === -->
+        <rect x="560" y="80" width="260" height="280" rx="8" fill="transparent" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="570" y="100" fill="#fb7185" font-size="9" font-weight="600">Azure SQL Database</text>
+
+        <rect x="580" y="115" width="220" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="690" y="138" fill="white" font-size="11" font-weight="600" text-anchor="middle">SQL Server</text>
+        <text x="690" y="155" fill="#94a3b8" font-size="9" text-anchor="middle">sql-capstone-2502c</text>
+
+        <rect x="580" y="195" width="220" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="690" y="218" fill="white" font-size="11" font-weight="600" text-anchor="middle">food-distributor-db</text>
+        <text x="690" y="235" fill="#94a3b8" font-size="9" text-anchor="middle">S0 Tier (10 DTUs) | TDE enabled</text>
+
+        <rect x="580" y="275" width="220" height="60" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="690" y="298" fill="white" font-size="11" font-weight="600" text-anchor="middle">Firewall Rules</text>
+        <text x="690" y="315" fill="#94a3b8" font-size="9" text-anchor="middle">Allow Azure Services + IP whitelist</text>
+
+        <!-- === AZURE CONTAINER REGISTRY === -->
+        <rect x="860" y="80" width="200" height="120" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="960" y="110" fill="white" font-size="11" font-weight="600" text-anchor="middle">Container Registry</text>
+        <text x="960" y="130" fill="#94a3b8" font-size="9" text-anchor="middle">purduecapstoneacr</text>
+        <text x="960" y="148" fill="#94a3b8" font-size="9" text-anchor="middle">Basic SKU</text>
+        <text x="960" y="166" fill="#fbbf24" font-size="8" text-anchor="middle">Private image storage</text>
+
+        <!-- === AZURE BLOB STORAGE (Unit 5+) === -->
+        <rect x="860" y="220" width="200" height="140" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="960" y="250" fill="white" font-size="11" font-weight="600" text-anchor="middle">Blob Storage</text>
+        <text x="960" y="270" fill="#94a3b8" font-size="9" text-anchor="middle">Product images (Unit 5)</text>
+        <text x="960" y="288" fill="#94a3b8" font-size="9" text-anchor="middle">Static assets / media</text>
+        <text x="960" y="306" fill="#94a3b8" font-size="9" text-anchor="middle">CDN-ready</text>
+        <text x="960" y="326" fill="#fbbf24" font-size="8" text-anchor="middle">Hot tier | LRS replication</text>
+
+        <!-- === GITHUB ACTIONS / CI/CD === -->
+        <rect x="190" y="400" width="870" height="120" rx="8" fill="transparent" stroke="#22d3ee" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="200" y="420" fill="#22d3ee" font-size="9" font-weight="600">CI/CD Pipeline — GitHub Actions</text>
+
+        <rect x="210" y="435" width="160" height="60" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="290" y="458" fill="white" font-size="10" font-weight="600" text-anchor="middle">GitHub Repo</text>
+        <text x="290" y="475" fill="#94a3b8" font-size="8" text-anchor="middle">Push to main → trigger</text>
+
+        <rect x="400" y="435" width="160" height="60" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="480" y="458" fill="white" font-size="10" font-weight="600" text-anchor="middle">Build & Test</text>
+        <text x="480" y="475" fill="#94a3b8" font-size="8" text-anchor="middle">Docker build + pytest</text>
+
+        <rect x="590" y="435" width="160" height="60" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="670" y="458" fill="white" font-size="10" font-weight="600" text-anchor="middle">Push to ACR</text>
+        <text x="670" y="475" fill="#94a3b8" font-size="8" text-anchor="middle">Tag: latest</text>
+
+        <rect x="780" y="435" width="160" height="60" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="860" y="458" fill="white" font-size="10" font-weight="600" text-anchor="middle">Deploy to App Service</text>
+        <text x="860" y="475" fill="#94a3b8" font-size="8" text-anchor="middle">Container swap / restart</text>
+
+        <!-- === LOCAL DEV ENVIRONMENT === -->
+        <rect x="190" y="560" width="400" height="180" rx="8" fill="transparent" stroke="#34d399" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="200" y="580" fill="#34d399" font-size="9" font-weight="600">Local Development Environment (Docker Compose)</text>
+
+        <rect x="210" y="595" width="170" height="60" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="295" y="618" fill="white" font-size="10" font-weight="600" text-anchor="middle">Django Dev Server</text>
+        <text x="295" y="635" fill="#94a3b8" font-size="8" text-anchor="middle">localhost:8000</text>
+
+        <rect x="210" y="670" width="170" height="50" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="295" y="690" fill="white" font-size="10" font-weight="600" text-anchor="middle">PostgreSQL 16</text>
+        <text x="295" y="705" fill="#94a3b8" font-size="8" text-anchor="middle">Local dev database</text>
+
+        <rect x="400" y="595" width="170" height="60" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="485" y="618" fill="white" font-size="10" font-weight="600" text-anchor="middle">.env File</text>
+        <text x="485" y="635" fill="#94a3b8" font-size="8" text-anchor="middle">Secrets & config (gitignored)</text>
+
+        <rect x="400" y="670" width="170" height="50" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="485" y="690" fill="white" font-size="10" font-weight="600" text-anchor="middle">Docker Compose</text>
+        <text x="485" y="705" fill="#94a3b8" font-size="8" text-anchor="middle">Orchestrates local stack</text>
+
+        <!-- === AZURE KEY VAULT (Unit 6+) === -->
+        <rect x="620" y="560" width="200" height="100" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="720" y="590" fill="white" font-size="11" font-weight="600" text-anchor="middle">Azure Key Vault</text>
+        <text x="720" y="610" fill="#94a3b8" font-size="9" text-anchor="middle">Secret rotation (Unit 6)</text>
+        <text x="720" y="628" fill="#94a3b8" font-size="9" text-anchor="middle">DB credentials | API keys</text>
+        <text x="720" y="646" fill="#fb7185" font-size="8" text-anchor="middle">Managed Identity access</text>
+
+        <!-- === AZURE MONITOR (Unit 7+) === -->
+        <rect x="860" y="560" width="200" height="100" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="960" y="590" fill="white" font-size="11" font-weight="600" text-anchor="middle">Azure Monitor</text>
+        <text x="960" y="610" fill="#94a3b8" font-size="9" text-anchor="middle">Application Insights (Unit 7)</text>
+        <text x="960" y="628" fill="#94a3b8" font-size="9" text-anchor="middle">Log Analytics | Alerts</text>
+        <text x="960" y="646" fill="#fbbf24" font-size="8" text-anchor="middle">Performance metrics</text>
+
+        <!-- === ARROWS === -->
+        <!-- User to App Service -->
+        <line x1="130" y1="365" x2="188" y2="365" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="160" y="358" fill="#94a3b8" font-size="9" text-anchor="middle">HTTPS</text>
+
+        <!-- App Service to SQL -->
+        <line x1="470" y1="230" x2="558" y2="230" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="515" y="222" fill="#94a3b8" font-size="9" text-anchor="middle">TLS 1.2</text>
+
+        <!-- App Service to Blob -->
+        <line x1="470" y1="290" x2="858" y2="290" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="660" y="282" fill="#94a3b8" font-size="9" text-anchor="middle">HTTPS</text>
+
+        <!-- ACR to App Service -->
+        <line x1="860" y1="140" x2="470" y2="140" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="665" y="132" fill="#94a3b8" font-size="9" text-anchor="middle">Image pull</text>
+
+        <!-- GitHub to ACR -->
+        <line x1="750" y1="465" x2="858" y2="200" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- GitHub to App Service -->
+        <line x1="940" y1="465" x2="470" y2="360" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Local dev to App Service (deployment) -->
+        <path d="M 570 625 Q 700 625 700 400" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+        <text x="635" y="545" fill="#34d399" font-size="8">docker push</text>
+
+        <!-- Key Vault to App Service -->
+        <line x1="620" y1="610" x2="470" y2="360" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrowhead)"/>
+        <text x="545" y="495" fill="#fb7185" font-size="8">Secrets</text>
+
+        <!-- Monitor to App Service -->
+        <line x1="860" y1="610" x2="470" y2="360" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrowhead)"/>
+        <text x="660" y="495" fill="#fbbf24" font-size="8">Metrics</text>
+
+        <!-- === LEGEND === -->
+        <text x="880" y="690" fill="white" font-size="10" font-weight="600">Legend</text>
+        <rect x="880" y="702" width="16" height="10" rx="2" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="902" y="710" fill="#94a3b8" font-size="8">Backend / App</text>
+        <rect x="880" y="718" width="16" height="10" rx="2" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="902" y="726" fill="#94a3b8" font-size="8">Database</text>
+        <rect x="880" y="734" width="16" height="10" rx="2" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="902" y="742" fill="#94a3b8" font-size="8">Azure Service</text>
+        <rect x="880" y="750" width="16" height="10" rx="2" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1"/>
+        <text x="902" y="758" fill="#94a3b8" font-size="8">Security</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Compute Layer</h3>
+        </div>
+        <ul>
+          <li>• Azure App Service (Linux) — B1 tier</li>
+          <li>• Django 5.1 + Gunicorn in Docker</li>
+          <li>• Auto-scaling + health checks</li>
+          <li>• Built-in HTTPS / custom domains</li>
+          <li>• Deployment slots for staging</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Data Layer</h3>
+        </div>
+        <ul>
+          <li>• Azure SQL Database (S0 tier)</li>
+          <li>• Transparent Data Encryption (TDE)</li>
+          <li>• Firewall rules + IP whitelisting</li>
+          <li>• Auto-backups (7-day retention)</li>
+          <li>• Local fallback: PostgreSQL 16</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Storage & Assets</h3>
+        </div>
+        <ul>
+          <li>• Azure Blob Storage (Unit 5+)</li>
+          <li>• Product images + static files</li>
+          <li>• CDN-ready for global delivery</li>
+          <li>• Azure Container Registry (ACR)</li>
+          <li>• Private Docker image storage</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>CI/CD Pipeline</h3>
+        </div>
+        <ul>
+          <li>• GitHub Actions workflow</li>
+          <li>• Auto-build on push to main</li>
+          <li>• Push image to ACR</li>
+          <li>• Deploy to App Service</li>
+          <li>• Rollback via slot swap</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Security (Unit 6+)</h3>
+        </div>
+        <ul>
+          <li>• Azure Key Vault for secrets</li>
+          <li>• Managed Identity (no passwords in code)</li>
+          <li>• SQL Firewall + Private Endpoints</li>
+          <li>• TLS 1.2 minimum</li>
+          <li>• .env files never committed</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Monitoring (Unit 7+)</h3>
+        </div>
+        <ul>
+          <li>• Azure Monitor + Log Analytics</li>
+          <li>• Application Insights for Django</li>
+          <li>• Custom alert rules</li>
+          <li>• Performance metrics dashboard</li>
+          <li>• Health check endpoint: /health/</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">
+      Purdue Capstone IT473 — Cloud Infrastructure & Data Engineering • June 2026
+    </p>
+  </div>
+</body>
+</html>
