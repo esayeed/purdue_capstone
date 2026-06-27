@@ -47,16 +47,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "app_db"),
-        "USER": os.getenv("POSTGRES_USER", "app_user"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "app_password"),
-        "HOST": os.getenv("POSTGRES_HOST", "db"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+# ============================================================
+# DATABASE CONFIGURATION
+# Supports PostgreSQL (local Docker) and Azure SQL (production)
+# ============================================================
+DB_ENGINE = os.getenv("DB_ENGINE", "postgresql")
+
+if DB_ENGINE == "mssql":
+    DATABASES = {
+        "default": {
+            "ENGINE": "mssql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT", "1433"),
+            "OPTIONS": {
+                "driver": "ODBC Driver 18 for SQL Server",
+                "extra_params": "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;",
+            },
+        }
     }
-}
+else:
+    # Default: PostgreSQL for local development
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB", os.getenv("DB_NAME", "app_db")),
+            "USER": os.getenv("POSTGRES_USER", os.getenv("DB_USER", "app_user")),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", os.getenv("DB_PASSWORD", "app_password")),
+            "HOST": os.getenv("POSTGRES_HOST", os.getenv("DB_HOST", "db")),
+            "PORT": os.getenv("POSTGRES_PORT", os.getenv("DB_PORT", "5432")),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

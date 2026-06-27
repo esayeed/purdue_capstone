@@ -1,3 +1,12 @@
 Django==5.1.10
 gunicorn==23.0.0
+
+# Local development database
 psycopg[binary]==3.2.9
+
+# Azure SQL Database production driver
+mssql-django==1.7.3
+pyodbc==5.3.0
+
+# Environment variable management
+python-dotenv==1.0.1

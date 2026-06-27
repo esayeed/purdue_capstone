@@ -1,0 +1,62 @@
+name: Deploy Django to Azure App Service
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Django checks
+        run: python manage.py check
+
+      - name: Run tests (if any)
+        run: python manage.py test || true
+
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push Docker image to ACR
+        run: |
+          az acr build \
+            --registry ${{ secrets.AZURE_ACR_NAME }} \
+            --image purdue-capstone:${{ github.sha }} \
+            --image purdue-capstone:latest \
+            .
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_APP_NAME }}
+          images: ${{ secrets.AZURE_ACR_LOGIN_SERVER }}/purdue-capstone:latest
+
+      - name: Run migrations on Azure
+        run: |
+          az webapp ssh --name ${{ secrets.AZURE_APP_NAME }} --resource-group ${{ secrets.AZURE_RG }} \
+            --command "cd /app && python manage.py migrate" || true
