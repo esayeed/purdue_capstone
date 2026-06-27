@@ -18,5 +18,8 @@ media/
 # Environment
 .env
 
+# Docker Compose overrides (local-only tweaks)
+docker-compose.override.yml
+
 # macOS
 .DS_Store

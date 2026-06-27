@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product — Purdue Capstone{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Add New Product</h2>
+        <p class="text-muted">Use this form to insert a product and its initial inventory into the database.</p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <h5 class="mt-4 mb-3">Product Details</h5>
+          {% for field in product_form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+            </div>
+          {% endfor %}
+
+          <h5 class="mt-4 mb-3">Initial Inventory</h5>
+          {% for field in inventory_form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

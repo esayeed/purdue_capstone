@@ -1,3 +1,9 @@
+# ============================================================
+# Docker Compose — Local Development Template
+# Copy this file to docker-compose.yml and customize as needed.
+# NEVER commit real secrets — put them in .env (gitignored).
+# ============================================================
+
 services:
   db:
     image: postgres:16

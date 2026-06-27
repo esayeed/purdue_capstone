@@ -1,9 +1,19 @@
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.db import connection
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+from .models import Product, Category, Customer
+from .forms import ProductForm, InventoryForm
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("Hello, world! This is your Django starter.")
+    context = {
+        "product_count": Product.objects.count(),
+        "category_count": Category.objects.count(),
+        "customer_count": Customer.objects.count(),
+    }
+    return render(request, "main/home.html", context)
 
 
 def health_check(request: HttpRequest) -> HttpResponse:
@@ -32,4 +42,26 @@ def db_health_check(request: HttpRequest) -> JsonResponse:
     return JsonResponse(
         {"status": "error", "db": "unknown"},
         status=503,
+    )
+
+
+def add_product(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        product_form = ProductForm(request.POST)
+        inventory_form = InventoryForm(request.POST)
+        if product_form.is_valid() and inventory_form.is_valid():
+            product = product_form.save()
+            inventory = inventory_form.save(commit=False)
+            inventory.product = product
+            inventory.save()
+            messages.success(request, f"Product '{product.name}' created successfully!")
+            return redirect("home")
+    else:
+        product_form = ProductForm()
+        inventory_form = InventoryForm()
+
+    return render(
+        request,
+        "main/add_product.html",
+        {"product_form": product_form, "inventory_form": inventory_form},
     )

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Purdue Capstone{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-lg-8">
+    <h1 class="display-5 fw-bold">Azure E-Commerce Platform</h1>
+    <p class="lead text-muted">IT473 Cloud Infrastructure &amp; Data Engineering Capstone</p>
+    <p>
+      This is the <strong>food distribution e-commerce</strong> starter built with Django, Docker,
+      PostgreSQL (local), and Azure SQL (production). Use this dashboard to verify deployment status
+      and navigate to data-entry tools.
+    </p>
+    <a href="{% url 'add_product' %}" class="btn btn-primary btn-lg me-2">Add Product</a>
+    <a href="/admin/" class="btn btn-outline-secondary btn-lg">Django Admin</a>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">System Status</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            App Health
+            <span class="badge bg-success rounded-pill" id="health-badge">Checking...</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Database
+            <span class="badge bg-secondary rounded-pill" id="db-badge">Checking...</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Engine
+            <span class="badge bg-info rounded-pill" id="engine-badge">-</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">📦 Products</h5>
+        <p class="card-text">Total products in catalog: <strong>{{ product_count }}</strong></p>
+        <a href="{% url 'add_product' %}" class="btn btn-sm btn-primary">Add Product</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">📁 Categories</h5>
+        <p class="card-text">Total categories: <strong>{{ category_count }}</strong></p>
+        <p class="text-muted small">Manage via Django Admin for now.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">👥 Customers</h5>
+        <p class="card-text">Registered customers: <strong>{{ customer_count }}</strong></p>
+        <p class="text-muted small">Seed script created sample customers.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function checkHealth() {
+  try {
+    const res = await fetch('/health/db/');
+    const data = await res.json();
+    const healthBadge = document.getElementById('health-badge');
+    const dbBadge = document.getElementById('db-badge');
+    const engineBadge = document.getElementById('engine-badge');
+
+    if (data.status === 'ok') {
+      healthBadge.className = 'badge bg-success rounded-pill';
+      healthBadge.textContent = 'Healthy';
+      dbBadge.className = 'badge bg-success rounded-pill';
+      dbBadge.textContent = 'Connected';
+      engineBadge.textContent = data.engine || 'unknown';
+    } else {
+      healthBadge.className = 'badge bg-danger rounded-pill';
+      healthBadge.textContent = 'Error';
+      dbBadge.className = 'badge bg-danger rounded-pill';
+      dbBadge.textContent = 'Disconnected';
+    }
+  } catch (e) {
+    document.getElementById('health-badge').className = 'badge bg-danger rounded-pill';
+    document.getElementById('health-badge').textContent = 'Unreachable';
+    document.getElementById('db-badge').className = 'badge bg-danger rounded-pill';
+    document.getElementById('db-badge').textContent = 'Unknown';
+  }
+})();
+</script>
+{% endblock %}
